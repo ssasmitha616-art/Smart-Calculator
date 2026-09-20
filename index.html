@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All-in-One Multi Calculator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #121212; color: #fff; display: flex; flex-direction: column; min-height: 100vh; }
+        
+        /* Navigation / Mode Tabs */
+        .navbar { display: flex; background: #1f1f1f; overflow-x: auto; border-bottom: 1px solid #333; }
+        .nav-btn { flex: 1; min-width: 90px; padding: 14px 8px; background: none; border: none; color: #888; font-weight: bold; font-size: 13px; cursor: pointer; text-align: center; }
+        .nav-btn.active { color: #00e676; border-bottom: 3px solid #00e676; }
+        .free-badge { background: #00e676; color: #000; font-size: 9px; padding: 2px 5px; border-radius: 4px; margin-left: 3px; font-weight: bold; }
+
+        /* Calculator Body */
+        .container { flex: 1; padding: 15px; max-width: 420px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; }
+        .calc-mode { display: none; flex-direction: column; flex: 1; }
+        .calc-mode.active { display: flex; }
+
+        /* Display Screen */
+        .display { background: #000; border-radius: 12px; padding: 15px; text-align: right; margin-bottom: 15px; border: 1px solid #333; }
+        .history { font-size: 13px; color: #888; min-height: 18px; }
+        .result { font-size: 30px; font-weight: bold; color: #00e676; word-wrap: break-word; }
+
+        /* Keypad Grid */
+        .keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        button.btn { background: #2a2a2a; color: #fff; border: none; padding: 16px; font-size: 18px; font-weight: bold; border-radius: 10px; cursor: pointer; }
+        button.btn:active { background: #444; }
+        .btn-op { background: #ff9800; }
+        .btn-func { background: #37474f; color: #80deea; }
+        .btn-clear { background: #e53935; }
+        .btn-equal { background: #00c853; grid-column: span 2; }
+
+        /* Form Controls for Finance & Unit Converters */
+        .form-group { margin-bottom: 12px; text-align: left; }
+        .form-group label { display: block; font-size: 12px; color: #aaa; margin-bottom: 4px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; background: #2a2a2a; border: 1px solid #444; color: #fff; border-radius: 8px; outline: none; }
+
+        /* Start.io Banner Ad Area */
+        .startio-banner-container { text-align: center; background: #1f1f1f; padding: 5px; min-height: 50px; border-top: 1px solid #333; }
+    </style>
+
+    <!-- Start.io Ads SDK Integration -->
+    <script src="https://cdn.startappservice.com/js/startapp-banner.js" async></script>
+</head>
+<body>
+
+    <!-- 🧭 Mode Selection Tabs -->
+    <div class="navbar">
+        <button class="nav-btn active" onclick="switchMode('basic', event)">Basic</button>
+        <button class="nav-btn" onclick="switchMode('scientific', event)">Scientific <span class="free-badge">FREE</span></button>
+        <button class="nav-btn" onclick="switchMode('finance', event)">Loan EMI <span class="free-badge">FREE</span></button>
+        <button class="nav-btn" onclick="switchMode('unit', event)">Converter <span class="free-badge">FREE</span></button>
+    </div>
+
+    <div class="container">
+        <!-- 1. BASIC CALCULATOR -->
+        <div id="mode-basic" class="calc-mode active">
+            <div class="display">
+                <div class="history" id="b-history">0</div>
+                <div class="result" id="b-result">0</div>
+            </div>
+            <div class="keypad">
+                <button class="btn btn-clear" onclick="bClear()">C</button>
+                <button class="btn btn-func" onclick="bDel()">DEL</button>
+                <button class="btn btn-func" onclick="bOp('%')">%</button>
+                <button class="btn btn-op" onclick="bOp('/')">÷</button>
+                <button class="btn" onclick="bNum('7')">7</button>
+                <button class="btn" onclick="bNum('8')">8</button>
+                <button class="btn" onclick="bNum('9')">9</button>
+                <button class="btn btn-op" onclick="bOp('*')">×</button>
+                <button class="btn" onclick="bNum('4')">4</button>
+                <button class="btn" onclick="bNum('5')">5</button>
+                <button class="btn" onclick="bNum('6')">6</button>
+                <button class="btn btn-op" onclick="bOp('-')">-</button>
+                <button class="btn" onclick="bNum('1')">1</button>
+                <button class="btn" onclick="bNum('2')">2</button>
+                <button class="btn" onclick="bNum('3')">3</button>
+                <button class="btn btn-op" onclick="bOp('+')">+</button>
+                <button class="btn" onclick="bNum('0')">0</button>
+                <button class="btn" onclick="bNum('.')">.</button>
+                <button class="btn btn-equal" onclick="bCalc()">=</button>
+            </div>
+        </div>
+
+        <!-- 2. SCIENTIFIC CALCULATOR -->
+        <div id="mode-scientific" class="calc-mode">
+            <div class="display">
+                <div class="history" id="s-history">0</div>
+                <div class="result" id="s-result">0</div>
+            </div>
+            <div class="keypad">
+                <button class="btn btn-clear" onclick="sClear()">C</button>
+                <button class="btn btn-func" onclick="sFunc('sin')">sin</button>
+                <button class="btn btn-func" onclick="sFunc('cos')">cos</button>
+                <button class="btn btn-func" onclick="sFunc('tan')">tan</button>
+                <button class="btn btn-func" onclick="sFunc('sqrt')">√</button>
+                <button class="btn btn-func" onclick="sFunc('log')">log</button>
+                <button class="btn btn-func" onclick="sOp('**')">x^y</button>
+                <button class="btn btn-op" onclick="sOp('/')">÷</button>
+                <button class="btn" onclick="sNum('7')">7</button>
+                <button class="btn" onclick="sNum('8')">8</button>
+                <button class="btn" onclick="sNum('9')">9</button>
+                <button class="btn btn-op" onclick="sOp('*')">×</button>
+                <button class="btn" onclick="sNum('4')">4</button>
+                <button class="btn" onclick="sNum('5')">5</button>
+                <button class="btn" onclick="sNum('6')">6</button>
+                <button class="btn btn-op" onclick="sOp('-')">-</button>
+                <button class="btn" onclick="sNum('1')">1</button>
+                <button class="btn" onclick="sNum('2')">2</button>
+                <button class="btn" onclick="sNum('3')">3</button>
+                <button class="btn btn-op" onclick="sOp('+')">+</button>
+                <button class="btn" onclick="sNum('0')">0</button>
+                <button class="btn" onclick="sNum('.')">.</button>
+                <button class="btn btn-equal" onclick="sCalc()">=</button>
+            </div>
+        </div>
+
+        <!-- 3. FINANCIAL / LOAN CALCULATOR -->
+        <div id="mode-finance" class="calc-mode">
+            <h3 style="margin-bottom:15px; color:#00e676;">Loan EMI Calculator</h3>
+            <div class="form-group">
+                <label>Loan Amount ($ / LKR)</label>
+                <input type="number" id="loan-amount" placeholder="e.g. 100000">
+            </div>
+            <div class="form-group">
+                <label>Interest Rate (% per year)</label>
+                <input type="number" id="loan-rate" placeholder="e.g. 12">
+            </div>
+            <div class="form-group">
+                <label>Tenure (Months)</label>
+                <input type="number" id="loan-months" placeholder="e.g. 24">
+            </div>
+            <button class="btn btn-equal" style="width:100%; margin-top:10px;" onclick="calcEMI()">Calculate Monthly EMI</button>
+            
+            <div class="display" style="margin-top:15px;">
+                <div class="history">Monthly Installment (EMI)</div>
+                <div class="result" id="emi-result">0.00</div>
+            </div>
+        </div>
+
+        <!-- 4. UNIT CONVERTER -->
+        <div id="mode-unit" class="calc-mode">
+            <h3 style="margin-bottom:15px; color:#00e676;">Weight / Length Converter</h3>
+            <div class="form-group">
+                <label>Value</label>
+                <input type="number" id="unit-val" placeholder="Type value..." oninput="convertUnit()">
+            </div>
+            <div class="form-group">
+                <label>Conversion Type</label>
+                <select id="unit-type" onchange="convertUnit()">
+                    <option value="kg-lbs">Kilograms (kg) ➔ Pounds (lbs)</option>
+                    <option value="km-miles">Kilometers (km) ➔ Miles</option>
+                    <option value="c-f">Celsius (°C) ➔ Fahrenheit (°F)</option>
+                </select>
+            </div>
+            <div class="display" style="margin-top:15px;">
+                <div class="history">Converted Value</div>
+                <div class="result" id="unit-result">0.00</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📢 Start.io Banner Placement -->
+    <div class="startio-banner-container" id="startio-banner"></div>
+
+    <script>
+        // Start.io Ads Initialization
+        window.addEventListener('load', function() {
+            var startioAppId = "208293409"; 
+
+            if (typeof StartApp !== 'undefined') {
+                StartApp.init(startioAppId);
+                StartApp.showBanner("startio-banner");
+            }
+        });
+
+        function switchMode(mode, event) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.calc-mode').forEach(m => m.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`mode-${mode}`).classList.add('active');
+        }
+
+        // --- 1. BASIC CALC ENGINE ---
+        let bInput = "";
+        function bNum(n) { bInput += n; document.getElementById('b-result').innerText = bInput; }
+        function bOp(o) { bInput += o; document.getElementById('b-result').innerText = bInput; }
+        function bClear() { bInput = ""; document.getElementById('b-result').innerText = "0"; document.getElementById('b-history').innerText = "0"; }
+        function bDel() { bInput = bInput.slice(0, -1); document.getElementById('b-result').innerText = bInput || "0"; }
+        function bCalc() {
+            try {
+                document.getElementById('b-history').innerText = bInput;
+                bInput = eval(bInput).toString();
+                document.getElementById('b-result').innerText = bInput;
+            } catch(e) { document.getElementById('b-result').innerText = "Error"; }
+        }
+
+        // --- 2. SCIENTIFIC CALC ENGINE ---
+        let sInput = "";
+        function sNum(n) { sInput += n; document.getElementById('s-result').innerText = sInput; }
+        function sOp(o) { sInput += o; document.getElementById('s-result').innerText = sInput; }
+        function sClear() { sInput = ""; document.getElementById('s-result').innerText = "0"; document.getElementById('s-history').innerText = "0"; }
+        function sFunc(fn) {
+            try {
+                let val = eval(sInput || "0");
+                if(fn==='sin') val = Math.sin(val * Math.PI/180);
+                if(fn==='cos') val = Math.cos(val * Math.PI/180);
+                if(fn==='tan') val = Math.tan(val * Math.PI/180);
+                if(fn==='sqrt') val = Math.sqrt(val);
+                if(fn==='log') val = Math.log10(val);
+                document.getElementById('s-history').innerText = `${fn}(${sInput})`;
+                sInput = val.toString();
+                document.getElementById('s-result').innerText = sInput;
+            } catch(e) { document.getElementById('s-result').innerText = "Error"; }
+        }
+        function sCalc() {
+            try { 
+                document.getElementById('s-history').innerText = sInput;
+                sInput = eval(sInput).toString(); 
+                document.getElementById('s-result').innerText = sInput; 
+            } catch(e) { document.getElementById('s-result').innerText = "Error"; }
+        }
+
+        // --- 3. FINANCE LOAN EMI ENGINE ---
+        function calcEMI() {
+            let P = parseFloat(document.getElementById('loan-amount').value);
+            let r = parseFloat(document.getElementById('loan-rate').value) / 12 / 100;
+            let n = parseFloat(document.getElementById('loan-months').value);
+
+            if(P && r && n) {
+                let emi = (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+                document.getElementById('emi-result').innerText = emi.toFixed(2);
+            }
+        }
+
+        // --- 4. UNIT CONVERTER ENGINE ---
+        function convertUnit() {
+            let val = parseFloat(document.getElementById('unit-val').value);
+            let type = document.getElementById('unit-type').value;
+            let res = 0;
+
+            if(!val) { document.getElementById('unit-result').innerText = "0.00"; return; }
+
+            if(type === 'kg-lbs') res = val * 2.20462;
+            if(type === 'km-miles') res = val * 0.621371;
+            if(type === 'c-f') res = (val * 9/5) + 32;
+
+            document.getElementById('unit-result').innerText = res.toFixed(2);
+        }
+    </script>
+</body>
+</html>
